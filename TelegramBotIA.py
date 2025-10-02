@@ -156,6 +156,18 @@ def translate_chat_bot(message_key, target_lang=setlang, *format_args):
         logging.error(f"Error: {e}")
         return message_key
 
+# funzione per rilevare se il messaggio chiede l'ora o la data / funcion to detect if the message asks for time or date
+def detect_time_or_date(user_msg: str, setlang: str) -> Optional[str]:
+    try:
+        translated = GoogleTranslator(source=setlang, target="it").translate(user_msg).lower()
+
+        if "che ore sono" in translated or "che ora è" in translated:
+            return "time"
+        if "che giorno è oggi" in translated or "che giorno è" in translated:
+            return "date"
+    except Exception as e:
+        logger.error(f"Error: {e}")
+    return None
  
 # comando /start 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -171,7 +183,7 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     state = get_chat_state(chat_id)
     for c, d in cmds.items():
-        await update.message.reply_text(f"{c} {translate_chat_bot(d, setlang)}")
+        await update.message.reply_text(f"{c} {translate_chat_bot(d, state['lang'])}")
 
 #comando /act
 async def activate_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -229,12 +241,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     user_msg = update.message.text.lower()
-    if "che ore sono?" in user_msg or "che ore sono" in user_msg or "che ora è?" in user_msg or "che ora è" in user_msg or "che ore sono?" in user_msg or "che ore sono" in user_msg:
+    check = detect_time_or_date(user_msg, state['lang'])
+
+    if check == "time":
         current_time = get_current_time()
         await update.message.reply_text(translate_chat_bot(f"Sono le {current_time}", setlang))
         return
-    
-    if "che giorno è oggi?" in user_msg or "che giorno è oggi" in user_msg or "che giorno è?" in user_msg or "che giorno è" in user_msg:
+
+    if check == "date":
         current_time = get_current_time()
         await update.message.reply_text(translate_chat_bot(f"Oggi è {current_time}", setlang))
         return
@@ -334,7 +348,9 @@ async def reset_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     SELECTED_MODEL = MODEL_LIST[10]
     state['listening'] = False
     state['model'] = SELECTED_MODEL
-    state['lang'] = setlang
+    setlang = "it"
+    state['lang'] = "it"
+    with open ("./Progetto_Finale/lang.txt", "w") as f: f.write('it')
     state['history'] = []
     state['file_context'] = ""
     save_states()
@@ -361,5 +377,6 @@ app.add_handler(CommandHandler('reset', reset_chat))
 # Avvio del bot / Start the bot
 if __name__ == "__main__":
     app.run_polling()
+
 
 
