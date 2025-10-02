@@ -48,7 +48,7 @@ Ensure the bot has write permissions in the working directory.
 
 Run the bot
 
--python bot.py
+- python bot.py
 
 ✅ The files lang.txt and chat_states.json will be created automatically on first run. 
 
