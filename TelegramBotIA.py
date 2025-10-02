@@ -337,7 +337,7 @@ async def set_lang(update: Update, context: ContextTypes.DEFAULT_TYPE):
         state['lang'] = new_lang
         save_states()
         await update.message.reply_text(translate_chat_bot(f"Lingua impostata a {new_lang}", setlang))
-        with open ("./Progetto_Finale/lang.txt", "w") as f: f.write(new_lang)
+        with open (".txt", "w") as f: f.write(new_lang)  # Path to settings file → ".txt"
         
 #comando /reset
 async def reset_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -350,7 +350,7 @@ async def reset_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     state['model'] = SELECTED_MODEL
     setlang = "it"
     state['lang'] = "it"
-    with open ("./Progetto_Finale/lang.txt", "w") as f: f.write('it')
+    with open (".txt", "w") as f: f.write('it')  # Path to settings file → ".txt"
     state['history'] = []
     state['file_context'] = ""
     save_states()
@@ -377,6 +377,7 @@ app.add_handler(CommandHandler('reset', reset_chat))
 # Avvio del bot / Start the bot
 if __name__ == "__main__":
     app.run_polling()
+
 
 
 
